@@ -76,9 +76,10 @@ IRQ_RX_TIME_OUT_MASK = 0x80
 MAX_PKT_LENGTH = 255
 
 # pass in non-default parameters for any/all options in the constructor parameters argument
-DEFAULT_PARAMETERS = {'frequency': 915E6, 'tx_power_level': 2, 'signal_bandwidth': 125E3,
+DEFAULT_PARAMETERS = {'frequency': 868100000, 'tx_power_level': 14, 'signal_bandwidth': 125E3,
 					  'spreading_factor': 7, 'coding_rate': 5, 'preamble_length': 8,
-					  'implicitHeader': False, 'sync_word': 0x12, 'enable_CRC': False}
+					  'implicitHeader': False, 'sync_word': 0x34, 'enable_CRC': False}
+#frequency was 915E6
 
 REQUIRED_VERSION = 0x12
 
@@ -95,7 +96,7 @@ class SX127x:
 		self.parameters = parameters
 		self._onReceive = onReceive	 # the onreceive function
 		self._onTransmit = onTransmit   # the ontransmit function
-		self._lock = True
+		self._lock = _thread.allocate_lock()
 		self._spiControl = spiControl   # the spi wrapper - see spicontrol.py
 		self.irqPin = spiControl.getIrqPin() # a way to need loracontrol only in spicontrol
 
@@ -186,9 +187,9 @@ class SX127x:
 	def acquire_lock(self, lock=False):
 		if self._lock:
 			if lock:
-				_thread.lock()
+				self._lock.acquire()
 			else:
-				_thread.unlock()
+				self._lock.release()
 
 	def println(self, string, implicitHeader=False):
 		self.acquire_lock(True)  # wait until RX_Done, lock and begin writing.
@@ -227,15 +228,10 @@ class SX127x:
 
 	def setFrequency(self, frequency):
 		self._frequency = frequency
-		frfs = {169E6: (42, 64, 0),
-				433E6: (108, 64, 0),
-				434E6: (108, 128, 0),
-				866E6: (216, 128, 0),
-				868E6: (217, 0, 0),
-				915E6: (228, 192, 0)}
-		self.writeRegister(REG_FRF_MSB, frfs[frequency][0])
-		self.writeRegister(REG_FRF_MID, frfs[frequency][1])
-		self.writeRegister(REG_FRF_LSB, frfs[frequency][2])
+		k = ((frequency<<19)//32000000)
+		self.writeRegister(REG_FRF_MSB, (k>>16)&0xff)
+		self.writeRegister(REG_FRF_MID, (k>>8)&0xff)
+		self.writeRegister(REG_FRF_LSB, k&0xff)
 
 	def setSpreadingFactor(self, sf):
 		sf = min(max(sf, 6), 12)

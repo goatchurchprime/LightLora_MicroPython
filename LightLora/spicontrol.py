@@ -2,12 +2,25 @@ from time import sleep
 from machine import Pin, SPI
 
 ''' Pin assignments for SPI and LoRa board'''
-PIN_ID_LORA_RESET = 27
-PIN_ID_LORA_SS = 12
+#PIN_ID_LORA_RESET = 27
+#PIN_ID_LORA_SS = 12
+#PIN_ID_SCK = 5
+#PIN_ID_MOSI = 18
+#PIN_ID_MISO = 19
+#PIN_ID_LORA_DIO0 = 33
+
+
 PIN_ID_SCK = 5
-PIN_ID_MOSI = 18
 PIN_ID_MISO = 19
-PIN_ID_LORA_DIO0 = 33
+PIN_ID_MOSI = 27
+PIN_ID_LORA_SS = 18
+PIN_ID_LORA_RESET = 14
+PIN_ID_LORA_DIO0 = 26
+
+#  quick hack Pin assignments for SPI and TTGO board (also same as Heltec) [doesn't work!]
+#def SetTTGOpins():
+#    global PIN_ID_SCK, PIN_ID_MISO, PIN_ID_MOSI, PIN_ID_LORA_SS, PIN_ID_LORA_RESET, PIN_ID_LORA_DIO0
+
 
 # loraconfig is the project definition for pins <-> hardware
 

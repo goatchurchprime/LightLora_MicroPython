@@ -38,7 +38,11 @@ class LoraUtil:
             'enable_CRC': True}
 		self.lora = sx127x.SX127x(spiControl=self.spic, parameters=params)
 		self.spic.initLoraPins() # init pins
-		self.lora.init()
+		try:
+			self.lora.init()
+		except Exception as e:
+			print("Exception", e)
+			return
 		self.lora.onReceive(self._doReceive)
 		self.lora.onTransmit(self._doTransmit)
 		# put into receive mode and wait for an interrupt
